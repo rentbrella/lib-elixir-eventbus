@@ -1,7 +1,7 @@
-defmodule Pub.Queue.Publisher do
+defmodule EventBus.Queue.Publisher do
   alias ExAws.SNS
 
-  alias Pub.Event
+  alias EventBus.Event
 
   @doc "Sends a `event` to a SNS `topic`"
   @spec run(Event.t() | {:ok, Event.t()}, binary) :: {:ok, map} | {:error, any}

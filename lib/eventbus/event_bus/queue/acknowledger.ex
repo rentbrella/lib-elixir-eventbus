@@ -1,7 +1,7 @@
-defmodule Pub.Queue.Acknowledger do
+defmodule EventBus.Queue.Acknowledger do
   alias ExAws.SQS
 
-  alias Pub.SQSMessage
+  alias EventBus.SQSMessage
 
   @doc "Deletes a message from SQS after processing it"
   @spec run(SQSMessage.t()) :: {:ok, map} | {:error, any}

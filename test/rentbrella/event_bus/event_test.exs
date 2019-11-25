@@ -1,10 +1,10 @@
 
-defmodule Pub.EventTest do
+defmodule EventBus.EventTest do
   use ExUnit.Case
 
-  alias Pub.Event
+  alias EventBus.Event
 
-  doctest Pub.Event
+  doctest EventBus.Event
 
   describe "Event.new/1" do
     test "returns error when event is not specified" do
@@ -15,7 +15,7 @@ defmodule Pub.EventTest do
 
     test "returns error when have too many fields" do
       result =
-        [ "event1", "event2", "event3" ]
+        [ "user_blocked", "movement_created", "movement_returned" ]
         |> Enum.random()
         |> Event.new(%{"surplus" => "value"})
 
@@ -24,7 +24,7 @@ defmodule Pub.EventTest do
 
     test "returns error when have missing fields" do
       result =
-        "event1"
+        "user_blocked"
         |> Event.new(%{"user_id" => Enum.random(1..10)})
 
       {:ok, %Event{payload: %{}}} = result
@@ -32,7 +32,7 @@ defmodule Pub.EventTest do
 
     test "converts payload fields in atoms" do
       result =
-        "event1"
+        "user_blocked"
         |> Event.new(%{"user_id" => Enum.random(1..10)})
 
       {:ok, %Event{payload: %{user_id: _}}} = result

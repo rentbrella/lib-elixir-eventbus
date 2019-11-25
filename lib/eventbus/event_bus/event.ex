@@ -1,27 +1,29 @@
-defmodule Pub.Event do
+defmodule EventBus.Event do
   @moduledoc "Represents a Event"
 
   @derive Jason.Encoder
-  defstruct [:payload, :event]
+  defstruct [:version, :payload, :event]
 
   @type t :: %__MODULE__{
-          payload: map(),
-          event: binary()
-        }
+    version: binary(),
+    payload: map(),
+    event: binary()
+  }
 
   alias __MODULE__
 
-  alias Pub.EventSpec
+  alias EventBus.EventSpec
 
   @doc """
   Creates new Event's struct
 
   ### Examples
-      iex> Pub.Event.new("event1", %{"user_id" => 1})
+      iex> EventBus.Event.new("user_blocked", %{"user_id" => 1})
       {:ok,
-        %Pub.Event{
-        event: "event1",
-        payload: %{user_id: 1}
+        %EventBus.Event{
+        event: "user_blocked",
+        payload: %{user_id: 1},
+        version: "2019-05-11"
       }}
   """
   @spec new(binary(), map()) :: {:ok, t()} | {:error, atom, list}
@@ -34,11 +36,11 @@ defmodule Pub.Event do
 
   defp validate_and_transform(%{event: event_name} = event) do
     case EventSpec.get(event_name) do
-      {:error, reason} ->
-        {:error, reason}
+      {:error, reason} -> {:error, reason}
 
-      {:ok, spec_fields} ->
+      {:ok, {version, spec_fields}} ->
         event
+        |> Map.put(:version, version)
         |> compare_payload_with_spec(spec_fields)
     end
   end
@@ -63,23 +65,19 @@ defmodule Pub.Event do
 
             {:ok, Map.put(event, :payload, payload)}
 
-          fields ->
-            {:error, {:missing_fields, fields}}
+          fields -> {:error, {:missing_fields, fields}}
         end
 
-      fields ->
-        {:error, {:surplus_fields, fields}}
+      fields -> {:error, {:surplus_fields, fields}}
     end
   end
 
   defp compare_field_lists(%{} = left, right),
     do: compare_field_lists(Map.keys(left), right)
-
   defp compare_field_lists(left, %{} = right),
     do: compare_field_lists(left, Map.keys(right))
-
   defp compare_field_lists(left, right) do
-    left = atom_fields_to_string(left)
+    left  = atom_fields_to_string(left)
     right = atom_fields_to_string(right)
 
     left -- right

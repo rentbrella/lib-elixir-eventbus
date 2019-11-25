@@ -1,4 +1,4 @@
-defmodule Pub do
+defmodule EventBus do
   @moduledoc """
   Responsible by interact with Rentbrella's Eventbus.
 
@@ -11,21 +11,21 @@ defmodule Pub do
   received messages.
 
   Example bellow configures functions to process
-  events `event1`, `event2` and
-  `event3`:
+  events `user_blocked`, `movement_created` and
+  `movement_returned`:
 
   ```elixir
-  config :lib_elixir_eventbus,
+  config :lib_event_bus,
     callbacks: [
-      {"event1",      &MyApp.handle_event1/1},
-      {"event2",  &MyApp.handle_event2/1},
-      {"event3", &MyApp.handle_3/1}
+      {"user_blocked",      &MyApp.handle_user_blocked/1},
+      {"movement_created",  &MyApp.handle_movement_created/1},
+      {"movement_returned", &MyApp.handle_movement_returned/1}
     ]
   ```
 
   These functions must be arity 1, and the
   argument passed in each call will be a
-  `%Pub.SQSMessage{}` struct.
+  `%EventBus.SQSMessage{}` struct.
 
   Besides this, these functions must return `:ok`
   when received message is successfully processed,
@@ -80,9 +80,9 @@ defmodule Pub do
   More details, see section [Processing functions](#module-processing-functions)
   """
 
-  alias Pub.Queue.Receiver
-  alias Pub.Queue.Publisher
-  alias Pub.Queue.Acknowledger
+  alias EventBus.Queue.Receiver
+  alias EventBus.Queue.Publisher
+  alias EventBus.Queue.Acknowledger
 
   defdelegate publish(event),
     to: Publisher, as: :run
@@ -91,7 +91,6 @@ defmodule Pub do
 
   defdelegate receive(),
     to: Receiver, as: :run
-
   defdelegate receive(queue, messages \\ 10),
     to: Receiver, as: :run
 

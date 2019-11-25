@@ -1,8 +1,8 @@
-defmodule Pub.Application.Validator do
+defmodule EventBus.Application.Validator do
   @moduledoc false
 
   @configuration_error """
-    You must configure Pub, as bellow:
+    You must configure EventBus, as bellow:
 
         config :lib_event_bus,
           callbacks: [

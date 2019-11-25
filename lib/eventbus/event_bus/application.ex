@@ -1,4 +1,4 @@
-defmodule Pub.Application do
+defmodule EventBus.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -7,7 +7,7 @@ defmodule Pub.Application do
 
   import Supervisor.Spec, warn: false
 
-  alias Pub.Application.Validator
+  alias EventBus.Application.Validator
 
   def start(_type, _args) do
     Application.get_env(:lib_event_bus, :callbacks)
@@ -17,15 +17,15 @@ defmodule Pub.Application do
 
     # List all child processes to be supervised
     children = [
-      # Starts a worker by calling: lib_event_busPub.Worker.start_link(arg)
-      worker(Pub.Workers.Producer, []),
-      worker(Pub.Workers.ProducerConsumer, []),
-      worker(Pub.Workers.Consumer, [])
+      # Starts a worker by calling: EventBus.Worker.start_link(arg)
+      worker(EventBus.Workers.Producer, []),
+      worker(EventBus.Workers.ProducerConsumer, []),
+      worker(EventBus.Workers.Consumer, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: Pub.Supervisor]
+    opts = [strategy: :one_for_one, name: EventBus.Supervisor]
     Supervisor.start_link(children, opts)
   end
 end

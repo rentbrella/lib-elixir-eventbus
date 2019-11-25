@@ -1,7 +1,7 @@
-defmodule Pub.Queue.Receiver do
+defmodule EventBus.Queue.Receiver do
   alias ExAws.SQS
 
-  alias Pub.SQSMessage
+  alias EventBus.SQSMessage
 
   @doc "Query SQS for new messages"
   @spec run(binary, Keyword.t()) :: {:ok, list(SQSMessage.t())} | {:error, any}
@@ -17,7 +17,7 @@ defmodule Pub.Queue.Receiver do
     do: {:error, reason}
   defp unpack_message({:ok, %{body: %{messages: messages}}}, queue_name) do
     Enum.map(messages, fn message ->
-      Pub.SQSMessage.new(message, queue_name)
+      EventBus.SQSMessage.new(message, queue_name)
     end)
   end
 end

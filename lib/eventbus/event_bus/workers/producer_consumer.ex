@@ -1,4 +1,4 @@
-defmodule Pub.Workers.ProducerConsumer do
+defmodule EventBus.Workers.ProducerConsumer do
   @moduledoc """
   The GenStage ProducerConsumer.
 
@@ -11,18 +11,18 @@ defmodule Pub.Workers.ProducerConsumer do
   You don't need or must call
   any function of this module directly
 
-  More details in [Processing functions](Pub.html#module-processing-functions)
+  More details in [Processing functions](EventBus.html#module-processing-functions)
   """
 
   use GenStage
 
   require Logger
 
-  alias Pub.Event
-  alias Pub.SQSMessage
+  alias EventBus.Event
+  alias EventBus.SQSMessage
 
-  alias Pub.Workers.Producer
-  alias Pub.Queue.Acknowledger
+  alias EventBus.Workers.Producer
+  alias EventBus.Queue.Acknowledger
 
   @doc false
   def start_link() do
@@ -46,22 +46,22 @@ defmodule Pub.Workers.ProducerConsumer do
   end
 
   defp group_messages_by_vality(messages) do
-    Enum.reduce(messages, %{valid: [], invalid: []}, fn message,
-                                                        %{valid: valid, invalid: invalid} = acc ->
-      case message do
-        %SQSMessage{has_valid_event?: true} ->
-          Map.put(acc, :valid, valid ++ [message])
+    Enum.reduce(messages, %{valid: [], invalid: []},
+      fn message, %{valid: valid, invalid: invalid} = acc ->
+        case message do
+          %SQSMessage{has_valid_event?: true}  ->
+            Map.put(acc, :valid, valid ++ [message])
 
-        %SQSMessage{has_valid_event?: false} ->
-          Map.put(acc, :invalid, invalid ++ [message])
+          %SQSMessage{has_valid_event?: false} ->
+            Map.put(acc, :invalid, invalid ++ [message])
+        end
       end
-    end)
+    )
   end
 
   defp discart_invalid_messages(%{invalid: invalids, valid: valids}) do
     Enum.each(invalids, fn message ->
       Logger.error("Message #{message.message_id} is invalid. Discarting")
-      Logger.error(inspect(message))
 
       Acknowledger.run(message)
     end)
@@ -71,11 +71,8 @@ defmodule Pub.Workers.ProducerConsumer do
 
   defp ack_uninteresting_messages(valid_messages) do
     case Application.get_env(:lib_event_bus, :callbacks) do
-      nil ->
-        valid_messages
-
-      [] ->
-        valid_messages
+      nil -> valid_messages
+      []  -> valid_messages
 
       events when is_list(events) ->
         configurated_events =

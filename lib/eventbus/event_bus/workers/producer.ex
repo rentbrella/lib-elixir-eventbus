@@ -1,4 +1,4 @@
-defmodule Pub.Workers.Producer do
+defmodule EventBus.Workers.Producer do
   @moduledoc """
   The GenStage Producer.
 
@@ -7,13 +7,13 @@ defmodule Pub.Workers.Producer do
   about new messages, which
   will be consumed by ProducerConsumer
 
-  More details in [Processing functions](Pub.html#module-processing-functions)
+  More details in [Processing functions](EventBus.html#module-processing-functions)
   """
   use GenStage
 
   require Logger
 
-  alias Pub.Queue
+  alias EventBus.Queue
 
   @doc false
   def start_link do

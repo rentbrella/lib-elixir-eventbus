@@ -1,23 +1,24 @@
-defmodule Pub.SQSMessage do
+defmodule EventBus.SQSMessage do
   alias __MODULE__
 
-  alias Pub.Event
-  alias Pub.EventSpec
+  alias EventBus.Event
+  alias EventBus.EventSpec
 
   @type t :: %__MODULE__{
-          message_id: binary(),
-          receipt_handle: binary(),
-          raw_body: binary() | map(),
-          queue_name: binary(),
-          event: Event.t(),
-          has_valid_event?: boolean()
-        }
+    message_id: binary(),
+    receipt_handle: binary(),
+    raw_body: binary() | map(),
+    queue_name: binary(),
+    event: Event.t(),
+    has_valid_event?: boolean()
+  }
 
   defstruct [
     :message_id,
     :receipt_handle,
     :raw_body,
     :queue_name,
+
     event: %Event{},
     has_valid_event?: false
   ]
@@ -54,8 +55,7 @@ defmodule Pub.SQSMessage do
       {:ok, decoded} ->
         Map.put(struct, :raw_body, decoded)
 
-      _another ->
-        struct
+      _another -> struct
     end
   end
 
@@ -64,45 +64,29 @@ defmodule Pub.SQSMessage do
       {:ok, decoded} ->
         validate_and_set_event(struct, decoded)
 
-      _another ->
-        struct
+      _another -> struct
     end
   end
-
   defp set_event(struct, _), do: struct
 
   defp validate_and_set_event(struct, decoded) do
     case decoded do
       %{"event" => event_name, "payload" => payload} ->
         case EventSpec.get(event_name) do
-          {:error, :event_not_found} ->
-            handle_error_struct(struct, :event_not_found)
+          {:error, :event_not_found} -> struct
 
           _another ->
             case Event.new(event_name, payload) do
               {:ok, event} ->
-                put_true(struct, event)
+                struct
+                |> Map.put(:event, event)
+                |> Map.put(:has_valid_event?, true)
 
-              {:error, reason} ->
-                handle_error_struct(struct, reason)
+              {:error, _} -> struct
             end
         end
 
-      _another ->
-        handle_error_struct(struct, "another")
+      _another -> struct
     end
-  end
-
-  defp put_true(struct, event) do
-    IO.inspect(event)
-
-    struct
-    |> Map.put(:event, event)
-    |> Map.put(:has_valid_event?, true)
-  end
-
-  defp handle_error_struct(struct, reason) do
-    IO.inspect(reason)
-    struct
   end
 end

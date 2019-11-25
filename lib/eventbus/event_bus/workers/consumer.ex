@@ -1,4 +1,4 @@
-defmodule Pub.Workers.Consumer do
+defmodule EventBus.Workers.Consumer do
   @moduledoc """
   The GenStage Consumer.
 
@@ -6,17 +6,17 @@ defmodule Pub.Workers.Consumer do
   by processing and discart
   successfully processed messages.
 
-  More details in [Processing functions](Pub.html#module-processing-functions)
+  More details in [Processing functions](EventBus.html#module-processing-functions)
   """
 
   use GenStage
 
   require Logger
 
-  alias Pub.SQSMessage
+  alias EventBus.SQSMessage
 
-  alias Pub.Queue.Acknowledger
-  alias Pub.Workers.ProducerConsumer
+  alias EventBus.Queue.Acknowledger
+  alias EventBus.Workers.ProducerConsumer
 
   @doc false
   def start_link do
@@ -43,7 +43,7 @@ defmodule Pub.Workers.Consumer do
         Logger.info("Message #{id} sucessfully processed. Acknowledging")
         Acknowledger.run(message)
 
-      :error -> 
+      :error ->
         Logger.error("Error processing message #{id}")
     end
   end

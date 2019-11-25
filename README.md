@@ -57,7 +57,7 @@ Note that is possible set up different functions for different events.
 
 ```elixir
 alias Pub
-alias Pub.Event
+alias EventBus.Event
 
 {:ok, event} = Event.new("event1", %{"user_id" => 1})
 

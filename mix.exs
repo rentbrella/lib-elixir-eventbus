@@ -1,4 +1,4 @@
-defmodule Pub.MixProject do
+defmodule EventBus.MixProject do
   use Mix.Project
 
   def project do
@@ -21,7 +21,7 @@ defmodule Pub.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {Pub.Application, []}
+      mod: {EventBus.Application, []}
     ]
   end
 
@@ -62,18 +62,18 @@ defmodule Pub.MixProject do
           Pub
         ],
         "Data Structs": [
-          Pub.Event,
-          Pub.SQSMessage
+          EventBus.Event,
+          EventBus.SQSMessage
         ],
         "Queue Interactions": [
-          Pub.Queue.Receiver,
-          Pub.Queue.Publisher,
-          Pub.Queue.Acknowledger
+          EventBus.Queue.Receiver,
+          EventBus.Queue.Publisher,
+          EventBus.Queue.Acknowledger
         ],
         "GenStage Modules": [
-          Pub.Workers.Consumer,
-          Pub.Workers.Producer,
-          Pub.Workers.ProducerConsumer
+          EventBus.Workers.Consumer,
+          EventBus.Workers.Producer,
+          EventBus.Workers.ProducerConsumer
         ]
       ]
     ]
